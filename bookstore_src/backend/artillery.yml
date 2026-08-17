@@ -1,0 +1,9 @@
+config:
+  target: 'http://192.168.1.10:5555'
+  phases:
+    - duration: 60
+      arrivalRate: 10000
+scenarios:
+  - flow:
+      - get:
+          url: "/api/books"

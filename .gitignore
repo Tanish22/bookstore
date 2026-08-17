@@ -1,0 +1,16 @@
+# Node.js
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.log
+*.Identifier
+*.zip
+Thumbs.db
+.DS_Store
+
+homelab_scripts
+
+# OS
+.DS_Store.env

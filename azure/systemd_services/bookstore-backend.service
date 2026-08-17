@@ -1,0 +1,37 @@
+[Unit]
+Description=Bookstore Node.js Backend API
+After=network-online.target bookstore-startup.service
+Wants=network-online.target
+# Requires means: if bookstore-startup fails, do not start this service.
+# Without this, the backend would try to start before code or .env exist.
+Requires=bookstore-startup.service
+
+[Service]
+Type=simple
+
+# Runs as nodeapp — limited blast radius if the app is exploited
+User=nodeapp
+Group=nodeapp
+
+WorkingDirectory=/opt/bookstore/backend
+
+# The main entry point of your Node.js app
+# Change index.js to server.js or app.js if your app uses a different entry file
+ExecStart=/usr/bin/node index.js
+
+# Restart only if Node.js crashes (exits with non-zero code)
+# Does NOT restart if you manually run: systemctl stop bookstore-backend
+Restart=on-failure
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bookstore-backend
+
+# systemd reads this file as root, extracts the variables,
+# and passes them to the Node.js process as environment variables.
+# The .env file is written by the startup script before this service starts.
+EnvironmentFile=/opt/bookstore/backend/.env
+
+[Install]
+WantedBy=multi-user.target

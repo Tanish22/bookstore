@@ -1,0 +1,34 @@
+[Unit]
+Description=Bookstore App Startup - Downloads code and secrets from Azure
+# Must wait for network to be fully up and DNS to be resolving
+# before trying to reach Blob Storage or Key Vault
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# oneshot: the service runs the script once, then exits.
+# systemd considers it "successful" if the script exits with code 0.
+Type=oneshot
+
+# RemainAfterExit=yes: even after the script exits, systemd considers
+# this service "active". This is what allows bookstore-backend.service
+# to use Requires=bookstore-startup.service and wait for it properly.
+RemainAfterExit=yes
+
+# Runs as root because it writes to /opt/bookstore/, writes .env,
+# and calls systemctl to start the backend service
+User=root
+
+ExecStart=/opt/bookstore/app-startup.sh
+
+# No restart — if the startup script fails, you want to know about it.
+# The VM should not loop retrying a broken startup script endlessly.
+# Use journalctl -u bookstore-startup to diagnose.
+Restart=no
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bookstore-startup
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,32 @@
+[Unit]
+Description=Bookstore Web Startup - Downloads React build from Azure Blob Storage
+# Only run after the network is fully up
+# Without this, the az storage download command would fail because
+# Azure Blob Storage is not reachable until the NIC has an IP and DNS works
+After=network-online.target
+Wants=network-online.target
+
+# Also wait for Nginx to be running before this service starts
+# This ensures nginx.service is already up when we try to reload it at the end
+After=nginx.service
+
+[Service]
+# oneshot: run once, then exit
+# systemd marks it "active (exited)" after successful completion
+Type=oneshot
+RemainAfterExit=yes
+
+# Runs as root because it writes to /var/www/ and calls systemctl
+User=root
+
+ExecStart=/opt/bookstore-web/startup.sh
+
+# Don't retry if the script fails — you want to investigate manually
+Restart=no
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bookstore-web-startup
+
+[Install]
+WantedBy=multi-user.target
